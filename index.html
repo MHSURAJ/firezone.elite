@@ -1,66 +1,107 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body { font-family:Arial; background:#111; color:white; text-align:center; padding-top:80px; }
-  .btn { padding:12px 20px; background:#ff4500; color:white; border-radius:8px; cursor:pointer; }
-</style>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial;
+      height: 100vh;
+      background: url("bg.jpg") no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .box {
+      background: rgba(0,0,0,0.6);
+      padding: 35px;
+      width: 300px;
+      border-radius: 10px;
+      color: white;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #00c4ff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: #ff6b6b;
+      margin-top: 10px;
+    }
+  </style>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
+
 <body>
+  <div class="box">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="pass" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div class="error" id="msg"></div>
+  </div>
 
-<h1>FireZone Login</h1>
-<p>Login with Google to continue</p>
-<button class="btn" onclick="googleLogin()">Sign in with Google</button>
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR-KEY",
+      authDomain: "YOUR.firebaseapp.com",
+      databaseURL: "https://YOUR.firebaseio.com",
+      projectId: "YOUR",
+      storageBucket: "YOUR.appspot.com",
+      messagingSenderId: "xxxxxxx",
+      appId: "xxxxxxx"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    function login() {
+      let email = document.getElementById("email").value;
+      let pass = document.getElementById("pass").value;
+      let msg = document.getElementById("msg");
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyD66aIVOTVco6rTtpVinkl64UZGnZDgn1o",
-    authDomain: "firezone-elite.firebaseapp.com",
-    databaseURL: "https://firezone-elite-default-rtdb.firebaseio.com/",
-    projectId: "firezone-elite",
-    storageBucket: "firezone-elite.appspot.com",
-    messagingSenderId: "121224317328",
-    appId: "1:121224317328:web:a4d19bab51fc8076400b15"
-  };
-  firebase.initializeApp(firebaseConfig);
+      firebase.auth().signInWithEmailAndPassword(email, pass)
+      .then(async (user) => {
+        let uid = user.user.uid;
 
-  const auth = firebase.auth();
-  const db = firebase.database();
+        // Check role from database
+        const snap = await firebase.database().ref("users/" + uid + "/role").once("value");
+        let role = snap.val();
 
-  function googleLogin() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    auth.signInWithPopup(provider)
-      .then(result => {
-        const user = result.user;
-
-        db.ref("users/" + user.uid).once("value", snap => {
-          if (!snap.exists()) {
-            db.ref("users/" + user.uid).set({
-              email: user.email,
-              role: "player"
-            });
-          }
-
-          let role = snap.val()?.role || "player";
-
-          if (role === "admin") {
-            window.location.href = "https://mhsuraj.github.io/firezone-admin/";
-          } else {
-            window.location.href = "https://mhsuraj.github.io/firezone-public/";
-          }
-        });
+        if (role === "admin") {
+          window.location.href = "https://USERNAME.github.io/admin-dashboard/admin.html";
+        } else {
+          window.location.href = "https://USERNAME.github.io/public-dashboard/public.html";
+        }
       })
-      .catch(err => alert("Error: " + err.message));
-  }
-</script>
-
+      .catch(e => {
+        msg.innerHTML = e.message;
+      });
+    }
+  </script>
 </body>
 </html>
