@@ -1,124 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
-
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        background: url("assets/bg.png") no-repeat center center fixed;
-        background-size: cover;
-        font-family: Arial;
-    }
-    .box {
-        width: 350px;
-        background: rgba(0,0,0,0.7);
-        padding: 25px;
-        border-radius: 10px;
-        margin: 140px auto;
-        text-align: center;
-        color: white;
-    }
-    input {
-        width: 90%;
-        padding: 12px;
-        margin: 10px 0;
-        border: none;
-        border-radius: 5px;
-    }
-    .btn {
-        width: 95%;
-        padding: 12px;
-        border: none;
-        background: #28a745;
-        color: white;
-        font-size: 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-    .google-btn {
-        margin-top: 15px;
-        padding: 12px;
-        width: 95%;
-        background: white;
-        color: #000;
-        border: none;
-        border-radius: 5px;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-</style>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-
+  <title>FireZone Login</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-<div class="box">
-    <h2>Login</h2>
+<body class="bg">
 
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button class="btn" onclick="emailLogin()">Login</button>
+  <div class="login-box">
+    <h2>FireZone Login</h2>
+    <button id="googleBtn" class="google-btn">Sign in with Google</button>
+  </div>
 
-    <button class="google-btn" onclick="googleLogin()">Sign in with Google</button>
-</div>
+  <script type="module">
+    import { auth, provider, getUserRole, createUserIfNotExists } from "./firebase.js";
+    import { signInWithRedirect, getRedirectResult } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-<script>
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyD66aIVOTVco6rTtpVinkl64UZGnZDgn1o",
-  authDomain: "firezone-elite.firebaseapp.com",
-  databaseURL: "https://firezone-elite-default-rtdb.firebaseio.com",
-  projectId: "firezone-elite",
-  storageBucket: "firezone-elite.firebasestorage.app",
-  messagingSenderId: "121224317328",
-  appId: "1:121224317328:web:a4d19bab51fc8076400b15",
-  measurementId: "G-9YR0LYN37X"
-};
+    document.getElementById("googleBtn").onclick = () => {
+      signInWithRedirect(auth, provider);
+    };
 
-// Firebase Init
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+    getRedirectResult(auth).then(async (result) => {
+      if (!result) return;
 
+      const user = result.user;
 
-// ---------------------------
-// EMAIL LOGIN
-// ---------------------------
-function emailLogin() {
-  let email = document.getElementById("email").value;
-  let pass = document.getElementById("password").value;
+      // Create user entry if first time
+      createUserIfNotExists(user.uid, user.displayName, user.email);
 
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(() => {
-      window.location.href = "public.html";
-    })
-    .catch(err => alert(err.message));
-}
+      const role = await getUserRole(user.uid);
 
-
-
-// ---------------------------
-// GOOGLE LOGIN
-// ---------------------------
-function googleLogin() {
-    var provider = new firebase.auth.GoogleAuthProvider();
-
-    auth.signInWithPopup(provider)
-    .then(result => {
+      if (role === "admin") {
+        window.location.href = "admin.html";
+      } else {
         window.location.href = "public.html";
-    })
-    .catch(err => alert(err.message));
-}
-
-</script>
+      }
+    }).catch(err => console.log(err));
+  </script>
 
 </body>
 </html>
