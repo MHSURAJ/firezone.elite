@@ -1,36 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
+<title>Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tournaments</title>
 <style>
-  body { font-family: Arial; padding: 20px; background: #f5f5f5; }
-  h1 { text-align: center; }
-  .tournament { background: #fff; padding: 10px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  body { font-family:Arial; background:#111; color:white; text-align:center; padding-top:80px; }
+  .btn { padding:12px 20px; background:#ff4500; color:white; border-radius:8px; cursor:pointer; }
 </style>
 </head>
 <body>
-<h1>Upcoming Tournaments</h1>
-<div id="tournament-list"></div>
+
+<h1>FireZone Login</h1>
+<p>Login with Google to continue</p>
+<button class="btn" onclick="googleLogin()">Sign in with Google</button>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-const sheetAPI = 'https://script.google.com/macros/s/AKfycbx9h9sDVpIOpvwWl4hnIXjjmcNXjqiLbvJERWZG-X1d1tJJ58STtGhGBwjflX3dQzysrg/exec'; // GET request fetches sheet data
+  const firebaseConfig = {
+    apiKey: "AIzaSyD66aIVOTVco6rTtpVinkl64UZGnZDgn1o",
+    authDomain: "firezone-elite.firebaseapp.com",
+    databaseURL: "https://firezone-elite-default-rtdb.firebaseio.com/",
+    projectId: "firezone-elite",
+    storageBucket: "firezone-elite.appspot.com",
+    messagingSenderId: "121224317328",
+    appId: "1:121224317328:web:a4d19bab51fc8076400b15"
+  };
+  firebase.initializeApp(firebaseConfig);
 
-async function loadTournaments(){
-    const res = await fetch(sheetAPI);
-    const data = await res.json();
-    const container = document.getElementById('tournament-list');
-    container.innerHTML = '';
-    data.slice(1).forEach(row => { // skip header
-        const div = document.createElement('div');
-        div.className = 'tournament';
-        div.textContent = `${row[1]} - ${row[2]} - ${row[3]}`;
-        container.appendChild(div);
-    });
-}
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-loadTournaments();
+  function googleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithPopup(provider)
+      .then(result => {
+        const user = result.user;
+
+        db.ref("users/" + user.uid).once("value", snap => {
+          if (!snap.exists()) {
+            db.ref("users/" + user.uid).set({
+              email: user.email,
+              role: "player"
+            });
+          }
+
+          let role = snap.val()?.role || "player";
+
+          if (role === "admin") {
+            window.location.href = "https://mhsuraj.github.io/firezone-admin/";
+          } else {
+            window.location.href = "https://mhsuraj.github.io/firezone-public/";
+          }
+        });
+      })
+      .catch(err => alert("Error: " + err.message));
+  }
 </script>
+
 </body>
 </html>
