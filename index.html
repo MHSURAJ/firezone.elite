@@ -1,54 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FireZone Elite - Login</title>
-    <link rel="stylesheet" href="style.css">
-
-    <!-- Google Auth SDK -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tournaments</title>
+<style>
+  body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+  h1 { text-align: center; }
+  .tournament { background: #fff; padding: 10px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+</style>
 </head>
-
 <body>
-
-    <!-- Sidebar Button -->
-    <div class="menu-btn" onclick="toggleMenu()">☰</div>
-
-    <!-- Sidebar -->
-    <div id="sideMenu" class="side-menu">
-        <a href="#">Home</a>
-        <a href="#">Stats</a>
-        <a href="#">Leaderboard</a>
-        <a href="#">Settings</a>
-    </div>
-
-    <!-- Main Container -->
-    <div class="content">
-        <h1 class="title">FireZone Elite</h1>
-
-        <div id="g_id_onload"
-             data-client_id="YOUR_CLIENT_ID_HERE"
-             data-context="signin"
-             data-ux_mode="redirect"
-             data-login_uri="https://mhsuraj.github.io/firezone.elite/dashboard.html"
-             data-auto_prompt="false">
-        </div>
-
-        <div class="g_id_signin"
-             data-type="standard"
-             data-size="large"
-             data-theme="outline"
-             data-text="signin_with"
-             data-shape="pill"
-             data-logo_alignment="left">
-        </div>
-    </div>
+<h1>Upcoming Tournaments</h1>
+<div id="tournament-list"></div>
 
 <script>
-function toggleMenu() {
-    document.getElementById("sideMenu").classList.toggle("open");
+const sheetAPI = 'https://script.google.com/macros/s/AKfycbx9h9sDVpIOpvwWl4hnIXjjmcNXjqiLbvJERWZG-X1d1tJJ58STtGhGBwjflX3dQzysrg/exec'; // GET request fetches sheet data
+
+async function loadTournaments(){
+    const res = await fetch(sheetAPI);
+    const data = await res.json();
+    const container = document.getElementById('tournament-list');
+    container.innerHTML = '';
+    data.slice(1).forEach(row => { // skip header
+        const div = document.createElement('div');
+        div.className = 'tournament';
+        div.textContent = `${row[1]} - ${row[2]} - ${row[3]}`;
+        container.appendChild(div);
+    });
 }
+
+loadTournaments();
 </script>
 </body>
 </html>
