@@ -1,37 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FireZone Elite - Admin Dashboard</title>
-  <link rel="stylesheet" href="admin.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="admin.css">
 </head>
-
 <body>
+
   <div class="sidebar">
     <h2>Admin Panel</h2>
     <ul>
-      <li onclick="showSection('matches')">Matches</li>
+      <li onclick="showSection('matches')">Manage Matches</li>
       <li onclick="showSection('players')">Players</li>
-      <li onclick="logout()">Logout</li>
     </ul>
   </div>
 
   <div class="main">
     <div id="matches" class="section">
-      <h2>Manage Matches</h2>
-      <button class="add-btn" onclick="openMatchPopup()">+ Add Match</button>
+      <h2>Matches</h2>
+      <button class="add-btn" onclick="openPopup()">+ Add Match</button>
 
       <div id="matchList" class="match-list"></div>
     </div>
 
     <div id="players" class="section" style="display:none;">
-      <h2>Player Approvals</h2>
+      <h2>Pending Players</h2>
       <div id="playerList"></div>
     </div>
   </div>
 
-  <!-- POPUP CARD UI -->
+  <!-- POPUP -->
   <div id="popupOverlay" class="overlay">
     <div class="popup">
       <h2 id="popupTitle">Add Match</h2>
@@ -54,10 +53,10 @@
       <label>Time</label>
       <input type="time" id="time">
 
-      <label>Room ID (Only verified players will see)</label>
+      <label>Room ID (Visible only to verified players)</label>
       <input id="roomId">
 
-      <label>Password (Only verified players will see)</label>
+      <label>Password (Visible only to verified players)</label>
       <input id="password">
 
       <button class="save-btn" onclick="saveMatch()">Save</button>
