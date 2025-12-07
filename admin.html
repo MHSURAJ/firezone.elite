@@ -1,15 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Panel</title>
-    <link rel="stylesheet" href="style.css">
+    <title>FireZone Elite - Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #220000, #400000, #6a0000);
+            color: white;
+            font-family: Arial;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            background: rgba(0,0,0,0.4);
+            padding-top: 40px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 15px 20px;
+            font-size: 18px;
+            color: #ddd;
+            cursor: pointer;
+        }
+
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+        }
+
+        .box {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px;
+            background: #FF5733;
+            border: none;
+            color: white;
+            border-radius: 6px;
+        }
+
+    </style>
 </head>
-<body style="background:#ddd;">
 
-<h1>Admin Panel</h1>
-<p>Only accessible manually by URL.</p>
+<body>
 
-<a href="public.html">Back to Dashboard</a>
+<div class="sidebar">
+    <a onclick="loadMatches()">Upcoming Matches</a>
+    <a onclick="addMatchForm()">Add Match</a>
+    <a onclick="approvalPage()">Player Approvals</a>
+</div>
+
+<div class="content" id="adminContent">
+    <h2>Loading...</h2>
+</div>
+
+<script type="module" src="admin.js"></script>
 
 </body>
 </html>
