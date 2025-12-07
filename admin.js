@@ -1,115 +1,97 @@
-document.addEventListener("DOMContentLoaded", ()=>{
+let editingIndex = null;
 
-    const addMatchBtn = document.getElementById("addMatchBtn");
-    const modal = document.getElementById("matchModal");
-    const saveMatchBtn = document.getElementById("saveMatchBtn");
-    const closeModalBtn = document.getElementById("closeModalBtn");
-    const matchesList = document.getElementById("matchesList");
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(sec => sec.style.display = "none");
+  document.getElementById(id).style.display = "block";
+}
 
-    let editingIndex = null;
+// Popup open
+function openMatchPopup(editIndex = null) {
+  editingIndex = editIndex;
 
-    let matches = JSON.parse(localStorage.getItem("matches")) || [];
+  if (editIndex !== null) {
+    const m = JSON.parse(localStorage.getItem("matches"))[editIndex];
 
-    function renderMatches(){
-        matchesList.innerHTML = "";
+    document.getElementById("popupTitle").innerText = "Edit Match";
+    document.getElementById("matchName").value = m.name;
+    document.getElementById("matchId").value = m.matchId;
+    document.getElementById("entryFee").value = m.entryFee;
+    document.getElementById("prize").value = m.prize;
+    document.getElementById("date").value = m.date;
+    document.getElementById("time").value = m.time;
+    document.getElementById("roomId").value = m.roomId;
+    document.getElementById("password").value = m.password;
 
-        if(matches.length === 0){
-            matchesList.innerHTML = "<p>No matches added</p>";
-            return;
-        }
+  } else {
+    document.getElementById("popupTitle").innerText = "Add Match";
+    document.querySelectorAll(".popup input").forEach(inp => inp.value = "");
+  }
 
-        matches.forEach((m, index)=>{
+  document.getElementById("popupOverlay").style.display = "flex";
+}
 
-            const card = document.createElement("div");
-            card.className = "match-card";
-            
-            card.innerHTML = `
-                <h3>${m.name}</h3>
-                <p>ID: ${m.matchID}</p>
-                <p>Date: ${m.date}</p>
-                <p>Time: ${m.time}</p>
-                <p>Players: ${m.players}</p>
-                <p>Entry Fee: ₹${m.fee}</p>
-                <p>Prize: ₹${m.prize}</p>
-                <button onclick="editMatch(${index})">Edit</button>
-                <button onclick="deleteMatch(${index})">Delete</button>
-            `;
+// Close popup
+function closePopup() {
+  document.getElementById("popupOverlay").style.display = "none";
+}
 
-            matchesList.appendChild(card);
-        });
-    }
+// Save or Update match
+function saveMatch() {
+  let matches = JSON.parse(localStorage.getItem("matches")) || [];
 
-    window.editMatch = function(index){
-        editingIndex = index;
-        const m = matches[index];
+  const newMatch = {
+    name: matchName.value,
+    matchId: matchId.value,
+    entryFee: entryFee.value,
+    prize: prize.value,
+    date: date.value,
+    time: time.value,
+    roomId: roomId.value,
+    password: password.value
+  };
 
-        document.getElementById("modalTitle").innerText = "Edit Match";
-        
-        m_name.value = m.name;
-        m_id.value = m.matchID;
-        m_fee.value = m.fee;
-        m_prize.value = m.prize;
-        m_date.value = m.date;
-        m_time.value = m.time;
-        m_players.value = m.players;
-        m_roomId.value = m.roomID;
-        m_roomPass.value = m.roomPass;
+  if (editingIndex !== null) {
+    matches[editingIndex] = newMatch;
+  } else {
+    matches.push(newMatch);
+  }
 
-        modal.style.display = "flex";
-    }
+  localStorage.setItem("matches", JSON.stringify(matches));
+  loadMatches();
+  closePopup();
+}
 
-    window.deleteMatch = function(index){
-        matches.splice(index, 1);
-        localStorage.setItem("matches", JSON.stringify(matches));
-        renderMatches();
-    }
+// Load match cards
+function loadMatches() {
+  let matches = JSON.parse(localStorage.getItem("matches")) || [];
+  let box = document.getElementById("matchList");
 
-    addMatchBtn.addEventListener("click", ()=>{
-        editingIndex = null;
-        modal.style.display = "flex";
+  box.innerHTML = "";
 
-        document.getElementById("modalTitle").innerText = "Add Match";
+  matches.forEach((m, i) => {
+    box.innerHTML += `
+      <div class="match-card">
+        <h3>${m.name}</h3>
+        <p><b>Match ID:</b> ${m.matchId}</p>
+        <p><b>Entry Fee:</b> ${m.entryFee}</p>
+        <p><b>Prize:</b> ${m.prize}</p>
+        <p><b>Date:</b> ${m.date}</p>
+        <p><b>Time:</b> ${m.time}</p>
 
-        m_name.value = "";
-        m_id.value = "";
-        m_fee.value = "";
-        m_prize.value = "";
-        m_date.value = "";
-        m_time.value = "";
-        m_players.value = "";
-        m_roomId.value = "";
-        m_roomPass.value = "";
-    });
+        <div class="card-btns">
+          <button class="edit-btn" onclick="openMatchPopup(${i})">Edit</button>
+          <button class="delete-btn" onclick="deleteMatch(${i})">Delete</button>
+        </div>
+      </div>
+    `;
+  });
+}
 
-    closeModalBtn.addEventListener("click", ()=>{
-        modal.style.display = "none";
-    });
+function deleteMatch(i) {
+  let matches = JSON.parse(localStorage.getItem("matches")) || [];
+  matches.splice(i, 1);
+  localStorage.setItem("matches", JSON.stringify(matches));
+  loadMatches();
+}
 
-    saveMatchBtn.addEventListener("click", ()=>{
-
-        const matchObj = {
-            name: m_name.value,
-            matchID: m_id.value,
-            fee: m_fee.value,
-            prize: m_prize.value,
-            date: m_date.value,
-            time: m_time.value,
-            players: m_players.value,
-            roomID: m_roomId.value,      // secret
-            roomPass: m_roomPass.value   // secret
-        };
-
-        if(editingIndex === null){
-            matches.push(matchObj);
-        } else {
-            matches[editingIndex] = matchObj;
-        }
-
-        localStorage.setItem("matches", JSON.stringify(matches));
-        modal.style.display = "none";
-
-        renderMatches();
-    });
-
-    renderMatches();
-});
+window.onload = loadMatches;
