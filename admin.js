@@ -1,3 +1,8 @@
+if(localStorage.getItem("userType") !== "admin"){
+    alert("Unauthorized! Please login as admin.");
+    window.location.href = "login.html";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // ===== Sidebar Buttons =====
