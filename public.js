@@ -1,111 +1,104 @@
-document.addEventListener("DOMContentLoaded", ()=>{
+// =====================
+//  USER LOGIN HANDLING
+// =====================
 
-    // ===== Login Check =====
-    if(localStorage.getItem("userType") !== "player"){
-        alert("Unauthorized! Please login as player.");
-        window.location.href = "login.html";
+let userEmail = localStorage.getItem("loggedInUser");
+
+if (!userEmail) {
+  window.location.href = "index.html"; // not logged in
+}
+
+// =====================
+//   LOAD MATCHES
+// =====================
+
+function loadMatches() {
+  let matches = JSON.parse(localStorage.getItem("matches")) || [];
+  let approvals = JSON.parse(localStorage.getItem("approvals")) || {};
+
+  let allMatches = document.getElementById("allMatches");
+  let myMatchesList = document.getElementById("myMatches");
+
+  allMatches.innerHTML = "";
+  myMatchesList.innerHTML = "";
+
+  matches.forEach((m, i) => {
+    // ------------------------------------
+    //   ALL MATCHES CARD
+    // ------------------------------------
+    let btnText = "Register";
+    let btnDisabled = false;
+
+    if (approvals[userEmail] === m.matchId) {
+      btnText = "Pending…";
+      btnDisabled = true;
     }
 
-    const allMatchesBtn = document.getElementById("allMatchesBtn");
-    const myMatchesBtn = document.getElementById("myMatchesBtn");
-    const contactUsBtn = document.getElementById("contactUsBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    let card = document.createElement("div");
+    card.className = "match-card";
 
-    const allMatchesSection = document.getElementById("allMatchesSection");
-    const myMatchesSection = document.getElementById("myMatchesSection");
-    const contactInfo = document.getElementById("contactInfo");
+    card.innerHTML = `
+      <h3>${m.name}</h3>
+      <p><b>ID:</b> ${m.matchId}</p>
+      <p><b>Entry Fee:</b> ${m.entryFee}</p>
+      <p><b>Prize:</b> ${m.prize}</p>
+      <p><b>Date:</b> ${m.date}</p>
+      <p><b>Time:</b> ${m.time}</p>
 
-    // ===== Sidebar Navigation =====
-    allMatchesBtn.addEventListener("click", ()=>{
-        allMatchesSection.style.display="block";
-        myMatchesSection.style.display="none";
-        contactInfo.style.display="none";
-    });
+      <button 
+        class="regbtn"
+        onclick="registerMatch(${i})"
+        ${btnDisabled ? "disabled" : ""}
+      >
+        ${btnText}
+      </button>
+    `;
 
-    myMatchesBtn.addEventListener("click", ()=>{
-        allMatchesSection.style.display="none";
-        myMatchesSection.style.display="block";
-        contactInfo.style.display="none";
-    });
+    allMatches.appendChild(card);
 
-    contactUsBtn.addEventListener("click", ()=>{
-        allMatchesSection.style.display="none";
-        myMatchesSection.style.display="none";
-        contactInfo.style.display="block";
-    });
+    // ------------------------------------
+    //   MY MATCHES (ONLY APPROVED)
+    // ------------------------------------
+    if (approvals[userEmail] === "approved_" + m.matchId) {
+      let myCard = document.createElement("div");
+      myCard.className = "match-card";
 
-    // ===== Logout =====
-    logoutBtn.addEventListener("click", ()=>{
-        localStorage.removeItem("userType");
-        localStorage.removeItem("userEmail");
-        alert("Logged out");
-        window.location.href = "login.html";
-    });
+      myCard.innerHTML = `
+        <h3>${m.name}</h3>
+        <p><b>Date:</b> ${m.date}</p>
+        <p><b>Time:</b> ${m.time}</p>
 
-    // ===== Matches Loading =====
-    const matchesList = document.getElementById("matchesList");
-    const myMatchesList = document.getElementById("myMatchesList");
+        <h4 style="margin-top:10px;">Room Details</h4>
+        <p><b>Room ID:</b> ${m.roomId}</p>
+        <p><b>Password:</b> ${m.password}</p>
+      `;
 
-    const matches = JSON.parse(localStorage.getItem("matches")) || [];
-    const userEmail = localStorage.getItem("userEmail");
-    let approvals = JSON.parse(localStorage.getItem("approvals")) || {};
-
-    function renderMatches(){
-        matchesList.innerHTML = "";
-        myMatchesList.innerHTML = "";
-
-        if(matches.length === 0){
-            matchesList.innerHTML = "<p>No upcoming matches</p>";
-            return;
-        }
-
-        matches.forEach((m, index)=>{
-            
-            // ========== All Matches Card ==========
-            const card = document.createElement("div");
-            card.className = "match-card";
-            card.innerHTML = `
-                <h3>${m.name}</h3>
-                <p>Date: ${m.date}</p>
-                <p>Time: ${m.time}</p>
-                <p>Players: ${m.players}</p>
-                <button id="registerBtn${index}">Register</button>
-            `;
-            matchesList.appendChild(card);
-
-            // Register Button
-            card.querySelector(`#registerBtn${index}`).addEventListener("click", ()=>{
-                
-                // Step 1: Open Google Form
-                window.open("https://forms.gle/ucxE3a8moxr3QrXp6", "_blank");
-
-                // Step 2: Save Pending Approval
-                let approvals = JSON.parse(localStorage.getItem("approvals")) || {};
-
-                if(userEmail){
-                    approvals[userEmail] = "pending";
-                    localStorage.setItem("approvals", JSON.stringify(approvals));
-                    alert("Form opened. Wait for admin approval.");
-                }
-            });
-
-            // ========== My Matches (Only Approved) ==========
-            if(approvals[userEmail] === "approved"){
-                const myCard = document.createElement("div");
-                myCard.className = "match-card";
-                myCard.innerHTML = `
-                    <h3>${m.name}</h3>
-                    <p>Date: ${m.date}</p>
-                    <p>Time: ${m.time}</p>
-                    <p>Players: ${m.players}</p>
-                `;
-                myMatchesList.appendChild(myCard);
-            }
-
-        });
-
+      myMatchesList.appendChild(myCard);
     }
+  });
+}
 
-    renderMatches();
+// =====================
+//   REGISTER MATCH
+// =====================
 
-});
+function registerMatch(index) {
+  let matches = JSON.parse(localStorage.getItem("matches")) || [];
+  let approvals = JSON.parse(localStorage.getItem("approvals")) || {};
+
+  let match = matches[index];
+
+  // Save "pending" request with matchId
+  approvals[userEmail] = "pending_" + match.matchId;
+
+  localStorage.setItem("approvals", JSON.stringify(approvals));
+
+  alert("Registration sent! Wait for admin approval.");
+  loadMatches();
+}
+
+// =====================
+//  PAGE INIT
+// =====================
+
+window.onload = loadMatches;
