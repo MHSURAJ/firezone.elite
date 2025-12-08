@@ -23,17 +23,21 @@ function loadMatches() {
   myMatchesList.innerHTML = "";
 
   matches.forEach((m, i) => {
-    // ------------------------------------
-    //   ALL MATCHES CARD
-    // ------------------------------------
+
     let btnText = "Register";
     let btnDisabled = false;
 
-    if (approvals[userEmail] === m.matchId) {
+    if (approvals[userEmail] === "pending_" + m.matchId) {
       btnText = "Pending…";
       btnDisabled = true;
     }
 
+    if (approvals[userEmail] === "approved_" + m.matchId) {
+      btnText = "Approved";
+      btnDisabled = true;
+    }
+
+    // ALL MATCHES SECTION
     let card = document.createElement("div");
     card.className = "match-card";
 
@@ -56,9 +60,9 @@ function loadMatches() {
 
     allMatches.appendChild(card);
 
-    // ------------------------------------
-    //   MY MATCHES (ONLY APPROVED)
-    // ------------------------------------
+    // ==========================
+    //      MY APPROVED MATCHES
+    // ==========================
     if (approvals[userEmail] === "approved_" + m.matchId) {
       let myCard = document.createElement("div");
       myCard.className = "match-card";
@@ -88,7 +92,6 @@ function registerMatch(index) {
 
   let match = matches[index];
 
-  // Save "pending" request with matchId
   approvals[userEmail] = "pending_" + match.matchId;
 
   localStorage.setItem("approvals", JSON.stringify(approvals));
