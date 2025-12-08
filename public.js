@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
   // Slidebar navigation
   navLinks.forEach(link=>{
+    link.style.cursor = 'pointer'; // ensure pointer
     link.addEventListener('click', ()=>{
       navLinks.forEach(l=>l.classList.remove('active'));
       link.classList.add('active');
@@ -61,5 +62,14 @@ document.addEventListener("DOMContentLoaded", ()=>{
     card.innerHTML = `<h3>${match.name}</h3><p>Date: ${match.date}</p><p>Status: ${match.status}</p>`;
     myMatchesList.appendChild(card);
   });
+
+  // Contact Us email fix
+  const contactSection = document.getElementById('contactUs');
+  contactSection.innerHTML = `
+    <h1>Contact Us</h1>
+    <div class="contact-card">
+      <p>For any support, email us at: <a href="mailto:firezone-support1@gmail.com">firezone-support1@gmail.com</a></p>
+    </div>
+  `;
 
 });
