@@ -4,30 +4,36 @@ body {
     background: url('bg.png') no-repeat center center fixed;
     background-size: cover;
     color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;  /* horizontal center */
+    align-items: center;      /* vertical center */
 }
 
 .container {
+    width: 90%;
     max-width: 800px;
-    margin: auto;
     padding: 20px;
+    background: rgba(0,0,0,0.6); /* semi-transparent bg */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
 
+/* Headings */
 h1, h2 {
     margin-bottom: 15px;
     text-align: center;
 }
 
+/* Matches & Contact sections */
 #upcomingMatches, #contactUs {
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     padding: 20px;
     margin: 20px 0;
     border-radius: 10px;
 }
 
-#matchesList li {
-    margin-bottom: 10px;
-}
-
+/* Contact form inputs */
 #contactUs input, #contactUs textarea {
     display: block;
     width: 100%;
@@ -37,6 +43,7 @@ h1, h2 {
     border: none;
 }
 
+/* Buttons */
 #contactUs button, #logoutBtn {
     padding: 10px 15px;
     border: none;
@@ -53,7 +60,7 @@ h1, h2 {
     background-color: #218838;
 }
 
-/* Responsive for mobile */
+/* Mobile responsiveness */
 @media (max-width: 600px){
     #contactUs input, #contactUs textarea {
         font-size: 14px;
