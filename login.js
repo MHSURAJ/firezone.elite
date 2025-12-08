@@ -1,15 +1,14 @@
 document.addEventListener("DOMContentLoaded", ()=>{
     const loginBtn = document.getElementById("googleLoginBtn");
 
-    loginBtn.addEventListener("click", ()=>{
-        const provider = new firebase.auth.GoogleAuthProvider();
-
-        firebase.auth().signInWithPopup(provider)
-        .then(result => {
+    loginBtn.addEventListener("click", async ()=>{
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const result = await firebase.auth().signInWithPopup(provider);
             const user = result.user;
             const email = user.email;
 
-            // ALWAYS SAVE HERE
+            // Save logged in user
             localStorage.setItem("loggedInUser", email);
 
             // Admin email list
@@ -18,15 +17,26 @@ document.addEventListener("DOMContentLoaded", ()=>{
             if (adminEmails.includes(email)) {
                 localStorage.setItem("userType", "admin");
                 window.location.href = "admin.html";
-            } 
-            else {
+            } else {
                 localStorage.setItem("userType", "player");
                 window.location.href = "public.html";
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.error(err);
             alert("Login failed: " + err.message);
-        });
+        }
+    });
+
+    // Auto redirect if already logged in
+    firebase.auth().onAuthStateChanged(user=>{
+        if(user){
+            const email = user.email;
+            const adminEmails = ["surushannu@gmail.com"];
+            if(adminEmails.includes(email)){
+                window.location.href = "admin.html";
+            } else {
+                window.location.href = "public.html";
+            }
+        }
     });
 });
